@@ -6,6 +6,14 @@ public class TextAnalyzerConfiguration
 
     public TextAnalyzerConfiguration(HashSet<string>? badWords = null)
     {
-        BadWords = badWords ?? new HashSet<string> {"дурак", "балбес"};
+        BadWords = badWords ?? new HashSet<string>(GetBadWords());
+    }
+    
+    private IEnumerable<string> GetBadWords()
+    {
+        using var sr = new StreamReader("../../../swears.txt");
+        var words = sr.ReadToEnd().Split('\n')
+            .Select(word => word.Trim());
+        return words;
     }
 }
