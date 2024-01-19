@@ -7,6 +7,7 @@ namespace SpeechPurifier.Analyzer;
 public partial class TextAnalyzer
 {
     private readonly TextAnalyzerConfiguration _configuration;
+    private readonly Hunspell _spellingAnalyzer;
 
     [GeneratedRegex(@"\.{3,}|[\.!\?…](?=\s)")]
     private static partial Regex SentenceEnd();
@@ -17,6 +18,7 @@ public partial class TextAnalyzer
     public TextAnalyzer(TextAnalyzerConfiguration configuration)
     {
         _configuration = configuration;
+        _spellingAnalyzer = new Hunspell("../../../ru_RU.aff", "../../../ru_RU.dic");
     }
 
     public TextAnalyzeResult Analyze(string text)
@@ -31,7 +33,7 @@ public partial class TextAnalyzer
 
         // TODO: Переписать на один цикл
         var badWordsMistakes = GetBadWordsMistakes(words);
-        var misspellingMistakes = GetMisspellingErrors(words);
+        var misspellingMistakes = GetMisspellingErrors(words, _spellingAnalyzer);
         return new TextAnalyzeResult(badWordsMistakes.Concat(misspellingMistakes).ToList());
     }
 
@@ -42,14 +44,10 @@ public partial class TextAnalyzer
             .Select(word => new BadWordMistake(word));
     }
 
-    private static IEnumerable<IMistake> GetMisspellingErrors(IEnumerable<string> words)
+    private static IEnumerable<IMistake> GetMisspellingErrors(IEnumerable<string> words, Hunspell hunspell)
     {
         return words
-            .Where(word =>
-            {
-                using var hunspell = new Hunspell("../../../ru_RU.aff", "../../../ru_RU.dic");
-                return !hunspell.Spell(word);
-            })
+            .Where(word => !hunspell.Spell(word))
             .Select(word => new MisspellingMistake(word));
     }
 }
