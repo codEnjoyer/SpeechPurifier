@@ -36,9 +36,9 @@ public partial class TextAnalyzer
         var mistakes = new Dictionary<string, List<IMistake>>();
         foreach (var word in words)
         {
-            if (_configuration.BadWords.Contains(word))
+            if (_configuration.BadWords.Contains(word.ToLower()))
                 AddMistake(new BadWordMistake(word), mistakes);
-            if (!_spellingAnalyzer.Spell(word))
+            else if (!_spellingAnalyzer.Spell(word))
                 AddMistake(new SpellingMistake(word), mistakes);
         }
         return mistakes;
@@ -52,19 +52,4 @@ public partial class TextAnalyzer
         else
             mistakes[mistakeName].Add(mistake);
     }
-    
-    //
-    // private IEnumerable<IMistake> GetBadWordsMistakes(IEnumerable<string> words)
-    // {
-    //     return words
-    //         .Where(word => _configuration.BadWords.Contains(word.ToLower()))
-    //         .Select(word => new BadWordMistake(word));
-    // }
-    //
-    // private IEnumerable<IMistake> GetSpellingMistakes(IEnumerable<string> words)
-    // {
-    //     return words
-    //         .Where(word => !_spellingAnalyzer.Spell(word))
-    //         .Select(word => new SpellingMistake(word));
-    // }
 }
