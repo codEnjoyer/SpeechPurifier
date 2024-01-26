@@ -33,8 +33,8 @@ public partial class TextAnalyzer
 
         // TODO: Переписать на один цикл
         var badWordsMistakes = GetBadWordsMistakes(words);
-        var misspellingMistakes = GetMisspellingErrors(words, _spellingAnalyzer);
-        return new TextAnalyzeResult(badWordsMistakes.Concat(misspellingMistakes).ToList());
+        var spellingMistakes = GetSpellingMistakes(words);
+        return new TextAnalyzeResult(badWordsMistakes.Concat(spellingMistakes).ToList());
     }
 
     private IEnumerable<IMistake> GetBadWordsMistakes(IEnumerable<string> words)
@@ -44,10 +44,10 @@ public partial class TextAnalyzer
             .Select(word => new BadWordMistake(word));
     }
 
-    private static IEnumerable<IMistake> GetMisspellingErrors(IEnumerable<string> words, Hunspell hunspell)
+    private IEnumerable<IMistake> GetSpellingMistakes(IEnumerable<string> words)
     {
         return words
-            .Where(word => !hunspell.Spell(word))
-            .Select(word => new MisspellingMistake(word));
+            .Where(word => !_spellingAnalyzer.Spell(word))
+            .Select(word => new SpellingMistake(word));
     }
 }
