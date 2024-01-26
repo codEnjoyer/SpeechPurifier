@@ -2,7 +2,7 @@
 
 namespace SpeechPurifier.Analyzer;
 
-public class TextAnalyzeResult
+public class TextAnalyzeResult : IAnalyzeResult
 {
     private readonly int _minPurityScore;
     private readonly int _maxPurityScore;
@@ -22,6 +22,6 @@ public class TextAnalyzeResult
         return Math.Clamp(_maxPurityScore - totalBadScore, _minPurityScore, _maxPurityScore);
     }
 
-    public override string ToString() =>
-        $"{PurityScore} out of {_maxPurityScore}";
+    public override string ToString() => $"{PurityScore}% out of {_maxPurityScore}%";
 }
+
