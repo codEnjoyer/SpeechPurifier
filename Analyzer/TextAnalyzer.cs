@@ -27,27 +27,44 @@ public partial class TextAnalyzer
         var wordsSequence = sentences
             .SelectMany(sentence => WordSeparator().Split(sentence))
             .Where(word => !string.IsNullOrWhiteSpace(word));
-            
-        var words = wordsSequence as string[] ?? wordsSequence.ToArray();
-        Console.WriteLine(string.Join(", ", words));
-
-        // TODO: Переписать на один цикл
-        var badWordsMistakes = GetBadWordsMistakes(words);
-        var spellingMistakes = GetSpellingMistakes(words);
-        return new TextAnalyzeResult(badWordsMistakes.Concat(spellingMistakes).ToList());
+        var mistakes = GetMistakesEntries(wordsSequence);
+        return new TextAnalyzeResult(mistakes);
     }
-
-    private IEnumerable<IMistake> GetBadWordsMistakes(IEnumerable<string> words)
+    
+    private Dictionary<string, List<IMistake>> GetMistakesEntries(IEnumerable<string> words)
     {
-        return words
-            .Where(word => _configuration.BadWords.Contains(word.ToLower()))
-            .Select(word => new BadWordMistake(word));
+        var mistakes = new Dictionary<string, List<IMistake>>();
+        foreach (var word in words)
+        {
+            if (_configuration.BadWords.Contains(word))
+                AddMistake(new BadWordMistake(word), mistakes);
+            if (!_spellingAnalyzer.Spell(word))
+                AddMistake(new SpellingMistake(word), mistakes);
+        }
+        return mistakes;
     }
-
-    private IEnumerable<IMistake> GetSpellingMistakes(IEnumerable<string> words)
+    
+    private static void AddMistake(IMistake mistake, IDictionary<string, List<IMistake>> mistakes)
     {
-        return words
-            .Where(word => !_spellingAnalyzer.Spell(word))
-            .Select(word => new SpellingMistake(word));
+        var mistakeName = mistake.GetType().Name;
+        if (!mistakes.ContainsKey(mistakeName))
+            mistakes.Add(mistakeName, new List<IMistake> {mistake});
+        else
+            mistakes[mistakeName].Add(mistake);
     }
+    
+    //
+    // private IEnumerable<IMistake> GetBadWordsMistakes(IEnumerable<string> words)
+    // {
+    //     return words
+    //         .Where(word => _configuration.BadWords.Contains(word.ToLower()))
+    //         .Select(word => new BadWordMistake(word));
+    // }
+    //
+    // private IEnumerable<IMistake> GetSpellingMistakes(IEnumerable<string> words)
+    // {
+    //     return words
+    //         .Where(word => !_spellingAnalyzer.Spell(word))
+    //         .Select(word => new SpellingMistake(word));
+    // }
 }

@@ -4,6 +4,6 @@ namespace SpeechPurifier.Analyzer;
 
 public interface IAnalyzeResult
 {
-    public IReadOnlyList<IMistake> Mistakes { get; }
+    public Dictionary<string, List<IMistake>> Mistakes { get; }
     public int PurityScore { get; }
 }
