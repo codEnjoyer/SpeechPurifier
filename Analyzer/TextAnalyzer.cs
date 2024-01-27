@@ -15,9 +15,9 @@ public partial class TextAnalyzer
     [GeneratedRegex(@"\W|_")]
     private static partial Regex WordSeparator();
 
-    public TextAnalyzer(TextAnalyzerConfiguration configuration)
+    public TextAnalyzer(TextAnalyzerConfiguration? configuration = null)
     {
-        _configuration = configuration;
+        _configuration = configuration ?? new TextAnalyzerConfiguration();
         _spellingAnalyzer = new Hunspell("../../../ru_RU.aff", "../../../ru_RU.dic");
     }
 

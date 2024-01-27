@@ -7,8 +7,7 @@ public static class Program
 {
     public static void Main()
     {
-        var analyzerConfig = new TextAnalyzerConfiguration();
-        var analyzer = new TextAnalyzer(analyzerConfig);
+        var analyzer = new TextAnalyzer();
         const string fishText =
             "Задача организации, в особенности же укрепление и развитие структуры требуют от нас анализа форм развития." +
             "С другой стороны постоянный количественный лох и сфера нашей активности требуют определения и " +
